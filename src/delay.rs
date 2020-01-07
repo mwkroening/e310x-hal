@@ -6,18 +6,22 @@ use crate::clock::Clocks;
 use riscv::register::{mie, mip};
 
 /// Machine timer (mtime) as a busyloop delay provider
-pub struct Delay;
+pub struct Delay {
+    clock_freq: u32,
+}
 
 impl Delay {
     /// Constructs a delay provider based on the machine timer (mtime)
-    pub fn new() -> Self {
-        Delay
+    pub fn new(clocks: Clocks) -> Self {
+        Delay {
+            clock_freq: clocks.lfclk().0,
+        }
     }
 }
 
 impl DelayMs<u32> for Delay {
     fn delay_ms(&mut self, ms: u32) {
-        let ticks = (ms as u64) * 32768 / 1000;
+        let ticks = (ms as u64) * (self.clock_freq as u64) / 1000;
 
         let mtime = MTIME;
         let t = mtime.mtime() + ticks;

@@ -411,8 +411,9 @@ impl Clocks {
             let delta_cycle: u64 = end_cycle - start_cycle;
             let delta_time: u64 = end_time - start_time;
 
-            let res = (delta_cycle / delta_time) * 32768
-                + ((delta_cycle % delta_time) * 32768) / delta_time;
+            let clock_freq = self.lfclk().0 as u64;
+            let res = (delta_cycle / delta_time) * clock_freq
+                + ((delta_cycle % delta_time) * clock_freq) / delta_time;
             // u32 can represent 4GHz way above the expected measurement value
             Hertz(res as u32)
         })
